@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -25,21 +24,29 @@
           <tr>
             <th scope="col">Short URL ID</th>
             <th scope="col">Long URL</th>
+            <th scope="col">Edit</th>
             <th scope="col">Delete</th>
           </tr>
         </thead>
         <tbody>
           <% for (let id in urls) { %>
+            
             <tr>
               <td><%= id %></td>
               <td><%= urls[id] %></td>
-              <td><form method="POST" action="/urls/9sm5xK/delete">
-              <button type="submit">Delete</button></form>
+              <td>     
+                <a href="/urls/<%= id %>">  
+                  <button type="submit" class="btn btn-success" id="editButton" >Edit</button>
+                </a>
               </td>
+              <td><form method="POST" action="/urls/<%= id %>/delete">
+                <button type="submit" class="btn btn-success" id="myButton" >Delete</button>
+              </form></td>
             </tr>
           <% } %>
         </tbody>
       </table>
+      <a href="/urls/new" > Shorten a new URL! </a>
     </main>
     <!-- Bootstrap JS -->
     <script
@@ -59,4 +66,3 @@
     ></script>
   </body>
 </html>
-
