@@ -37,9 +37,12 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+//Form submission
 app.post("/urls", (req, res) => {
-  console.log(req.body); // Log the POST request body to the console
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  const longURL = req.body.longURL;
+  const newShortUrl = generateRandomString();
+  urlDatabase[newShortUrl] = longURL;
+  res.redirect(`/urls/${newShortUrl}`);  
 });
 
 app.get("/urls/:id", (req, res) => {
