@@ -19,15 +19,15 @@ const urlDatabase = {
 };
 
 const users = {
-  snake: {
-    id: "snake",
-    email: "snake@example.com",
-    password: "snakePassword",
+  user1: {
+    id: "user1",
+    email: "user1@example.com",
+    password: "user1Password",
   },
-  turtle: {
-    id: "turtle",
-    email: "turtle@example.com",
-    password: "turtlePassword",
+  user2: {
+    id: "user2",
+    email: "user2@example.com",
+    password: "user2Password",
   },
 };
 
@@ -134,7 +134,7 @@ app.post("/urls", (req, res) => {
   urlDatabase[id] = req.body.longURL;
   console.log(urlDatabase);
   res.redirect(`/urls/${id}`);
-  res.send("Ok"); // Respond with 'Ok' (replace this eventually)
+  res.send("Ok"); // Responds 'Ok' 
 });
 
 app.get("/urls.json", (req, res) => {
