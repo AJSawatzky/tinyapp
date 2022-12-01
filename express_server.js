@@ -35,11 +35,10 @@ const generateRandomString = () => {
   return (Math.random() + 1).toString(36).slice(2,8);
 };
 
-//checks whether an email is already contained in our DB. It returns "null" if it's in our DB, "true" if it's not there
+//checks whether an email is already contained in the Database. It returns "null" if it's in our Database, "true" if it's not there
 const checkUsers = (loginEmail) => {
   let value = true;
   for (const user of Object.keys(users)) {
-    //console.log(users[user].email);
     if (users[user].email === loginEmail) {
       value = null;
     } 
@@ -49,7 +48,6 @@ const checkUsers = (loginEmail) => {
 //finds the User ID, required to create a cookie on login
 const retrieveUserID = (loginEmail) => {
   for (const user of Object.keys(users)) {
-    //console.log(users[user].email);
     if (users[user].email === loginEmail) {
       userID = users[user].id;
     } 
@@ -60,18 +58,16 @@ const retrieveUserID = (loginEmail) => {
 const checkUsersPassword = (loginPassword) => {
   let value = true;
   for (const user of Object.keys(users)) {
-    //console.log(users[user].email);
     if (users[user].password === loginPassword) {
       value = null;
     } 
   } return value;
 }
 
-//Checks if the url ID in our DB. If value = null, then the key is in the DB
+//Checks if the url ID in the Database. If value = null, then the key is in the DB
 const checkDatabaseForID = (ID) => {
   let value = true;
   for (const key in urlDatabase) {
-    //console.log(users[user].email);
     if (key === ID) {
       value = null;
     } 
@@ -79,9 +75,7 @@ const checkDatabaseForID = (ID) => {
 }
 
 // console.log(checkDatabaseForID("b2xVn2"))
-
-//console.log(checkUsersPassword("examplePassword")); //--> checkUsersPassword function test code
-
+// console.log(checkUsersPassword("examplePassword")); //--> checkUsersPassword function test code
 // console.log("checkusers", checkUsers("example@example.com")); --> checkUsers function test code
 
 app.get("/", (req, res) => {
@@ -95,14 +89,6 @@ app.post("/urls/:id/delete", (req, res) => {
   console.log("New database objects:",urlDatabase);
   res.redirect("/urls");
 });
-
-// OLD LOGIN PROCESS  
-// app.post("/login", (req, res) => {
-//   //console.log(req.body); // Log the POST request body to the console
-//   res.cookie('name', req.body.usernameInput);
-//   //console.log('req.body', req.body.usernameInput) -- checks for the right username input
-//   res.redirect("/urls");
-// });
 
 app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
