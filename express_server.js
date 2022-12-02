@@ -102,7 +102,11 @@ const checkDatabaseForID = (ID) => {
 // console.log("checkusers", checkUsers("example@example.com")); --> checkUsers function test code
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  if (req.session.user_id === undefined) {
+    res.redirect("/login");
+  } else {
+    res.redirect("/urls");
+  }
 });
 
 app.post("/urls/:id/delete", (req, res) => {
@@ -144,7 +148,7 @@ app.get("/urls/new", (req, res) => {
     user: users[req.session.user_id]
   };
   if (req.session.user_id === undefined) {
-    res.redirect("/register");
+    res.redirect("/login");
   }
   res.render("urls_new", templateVars);
 });
@@ -205,8 +209,7 @@ app.get("/urls/:id", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  console.log("logout requested"); // Log the POST request body to the console
-  res.clearCookie('user_id', req.session.user_id);
+  req.session = null
   res.redirect(`/login`);
 });
 
@@ -251,14 +254,13 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   const userEmail = req.body.email;
   const password = req.body.password;
-  //console.log('inputtedinfo', userEmail, password);
   const hashedPassword = bcrypt.hashSync(password, 10);
-  const userID getUserByEmail(userEmail, users);
+  const userID = getUserByEmail(userEmail, users);
   if (getUserByEmail(req.body.email, users) === null) {
     res.status(403).send("User not found!");
   } if (checkUsersPassword(password) === true || bcrypt.compareSync(password, users[userID].password) === true) {
       let loginUserID = getUserByEmail(userEmail, users);
-    req.session.user_id = users[loginUserID].id
+    req.session.user_id = users[loginUserID].id;
     res.redirect(`/urls`);
   } else {
     res.status(403).send("Incorrect Password.");
@@ -273,4 +275,4 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
-module.exports = { users }
+module.exports = { users };
