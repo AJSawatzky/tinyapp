@@ -14,8 +14,14 @@ app.use(cookieParser());
 app.set("view engine", "ejs");
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "user1",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "user2",
+  },
 };
 
 const users = {
@@ -29,6 +35,16 @@ const users = {
     email: "user2@example.com",
     password: "user2Password",
   },
+};
+
+const urlsForUser = (id) => {
+  const userURLs = {};
+  const currentUser = id;
+  for (const shortID of Object.key(urlDatabase)) {
+    if (urlDatabase[shortID].userID === currentUser) {
+      userURLs[shortID] = urlDatabase[shortID];
+    }
+  } return userURLs;
 };
 
 const generateRandomString = () => {
@@ -47,12 +63,13 @@ const checkUsers = (loginEmail) => {
 
 //finds the User ID, required to create a cookie on login
 const retrieveUserID = (loginEmail) => {
+  let userID = "";
   for (const user of Object.keys(users)) {
     if (users[user].email === loginEmail) {
       userID = users[user].id;
     } 
   } return userID;
-}
+};
 
 
 const checkUsersPassword = (loginPassword) => {
@@ -62,7 +79,7 @@ const checkUsersPassword = (loginPassword) => {
       value = null;
     } 
   } return value;
-}
+};
 
 //Checks if the url ID in the Database. If value = null, then the key is in the DB
 const checkDatabaseForID = (ID) => {
@@ -72,10 +89,11 @@ const checkDatabaseForID = (ID) => {
       value = null;
     } 
   } return value;
-}
+};
+//console.log(checkDatabaseForID("b2xVn2"));
 
-// console.log(checkDatabaseForID("b2xVn2"))
 // console.log(checkUsersPassword("examplePassword")); //--> checkUsersPassword function test code
+
 // console.log("checkusers", checkUsers("example@example.com")); --> checkUsers function test code
 
 app.get("/", (req, res) => {
@@ -85,6 +103,14 @@ app.get("/", (req, res) => {
 app.post("/urls/:id/delete", (req, res) => {
   //console.log(req.body); // Log the POST request body to the console
   const id = req.params.id;
+  const viewerID = req.cookies["user_id"];
+  if (urlDatabase[req.params.id].userID !== viewerID) {
+    res.status(401).send("You don't have permission to view this URL");
+  } if (urlDatabase[id] === undefined) {
+    res.status(404).send("That URL ID does not exist!");
+  } if (req.cookies["user_id"] === undefined) {
+    res.status(401).send("You don't have permission to delete this URL");
+  }
   delete urlDatabase[id];
   console.log("New database objects:",urlDatabase);
   res.redirect("/urls");
@@ -92,8 +118,15 @@ app.post("/urls/:id/delete", (req, res) => {
 
 app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
-  urlDatabase[id] = req.body.longURL;
-  //console.log('new urlDatabase values:', urlDatabase);
+  const viewerID = req.cookies["user_id"];
+  if (urlDatabase[id].userID !== viewerID) {
+    res.status(401).send("You don't have permission to view this URL");
+  } if (req.cookies["user_id"] === undefined) {
+    res.status(401).send("You must be logged in to view this URL");
+  } if (urlDatabase[id] === undefined) {
+    res.status(404).send("That URL ID does not exist!");
+  }
+  urlDatabase[id] = { longURL: req.body.longURL, userID: req.cookies["user_id"]};
   res.redirect("/urls");
 });
 
@@ -117,7 +150,7 @@ app.post("/urls", (req, res) => {
   }
   console.log('postURLs', req.body); // Log the POST request body to the console
   const id = generateRandomString();
-  urlDatabase[id] = req.body.longURL;
+  urlDatabase[id] = {longURL: req.body.longURL, userID: req.cookies["user_id"]};
   console.log(urlDatabase);
   res.redirect(`/urls/${id}`);
   res.send("Ok"); // Responds 'Ok' 
@@ -128,8 +161,12 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
+  if (req.cookies["user_id"] === undefined) {
+    res.status(401).send("Log in to view short URLs");
+  }
+  const userURLs = urlsForUser(req.cookies["user_id"]);
   const templateVars = {
-    urls: urlDatabase,
+    urls: userURLs,
     user: users[req.cookies["user_id"]]
   };
   res.render("urls_index", templateVars);
@@ -138,16 +175,25 @@ app.get("/urls", (req, res) => {
 app.get("/u/:id", (req, res) => {
   const id = req.params.id;
   if (checkDatabaseForID(id) === true) {
-    res.status(404).send("That URL ID does not exist!")
+    res.status(404).send("URL ID doesn't exist!");
   }
-  const longURL = urlDatabase[id];
+  const longURL = urlDatabase[id].longURL;
   res.redirect(longURL);
 });
 
 app.get("/urls/:id", (req, res) => {
+  const urlID = req.params.id;
+  const viewerID = req.cookies["user_id"];
+  if (urlDatabase[urlID] === undefined) {
+    res.status(404).send("That URL ID does not exist!");
+  } if (viewerID === undefined) {
+    res.status(401).send("log in to view shortened URLs");
+  } if (urlDatabase[req.params.id].userID !== viewerID) {
+    res.status(401).send("You don't have permission to view this URL");
+  }
   const templateVars = {
     id: req.params.id,
-    longURL: urlDatabase[req.params.id],
+    longURL: urlDatabase[req.params.id].longURL,
     user: users[req.cookies["user_id"]]
   };
   res.render("urls_show", templateVars);
@@ -170,7 +216,7 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  const id = generateRandomString()
+  const id = generateRandomString();
   const userEmail = req.body.email;
   const password = req.body.password;
   if (userEmail === "" || password === "") {
@@ -178,10 +224,10 @@ app.post("/register", (req, res) => {
   } else if (checkUsers(req.body.email) === null) {
     res.status(400).send("That email already has an account registered!");
   } else {
-  users[id] = {id: id, email: userEmail, password: password}
-  console.log("users:", users)
-  res.cookie('user_id', users[id].id) //login new user
-  res.redirect(`/urls`)
+    users[id] = {id: id, email: userEmail, password: password};
+    console.log("users:", users);
+    res.cookie('user_id', users[id].id); //login new user
+    res.redirect(`/urls`);
   }
 });
 
@@ -203,15 +249,15 @@ app.post("/login", (req, res) => {
   if (checkUsers(userEmail) === true) {
     res.status(403).send("User not found!");
   } if (checkUsers(userEmail) === null && checkUsersPassword(password) === true) {
-    res.status(403).send("Incorrect Password!")
+    res.status(403).send("Incorrect Password!");
   } else {
     let loginUserID = retrieveUserID(userEmail);
-    res.cookie('user_id', users[loginUserID].id)
-    res.redirect(`/urls`)
+    res.cookie('user_id', users[loginUserID].id);
+    res.redirect(`/urls`);
   }
 });
 
-app.use((req, res, next) => {
+app.use((req, res) => {
   res.status(404).send("404 page not found!");
 });
 
