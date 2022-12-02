@@ -2,6 +2,7 @@ const express = require("express");
 const cookieParser = require('cookie-parser');
 const app = express();
 const PORT = 8080; 
+const bcrypt = require("bcryptjs");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -219,12 +220,13 @@ app.post("/register", (req, res) => {
   const id = generateRandomString();
   const userEmail = req.body.email;
   const password = req.body.password;
+  const hashedPassword = bcrypt.hashSync(password, 10);
   if (userEmail === "" || password === "") {
     res.status(400).send("Please check that you've inputted a username and password!");
   } else if (checkUsers(req.body.email) === null) {
     res.status(400).send("That email already has an account registered!");
   } else {
-    users[id] = {id: id, email: userEmail, password: password};
+    users[id] = {id: id, email: userEmail, password: hashedPassword};
     console.log("users:", users);
     res.cookie('user_id', users[id].id); //login new user
     res.redirect(`/urls`);
@@ -245,10 +247,11 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   const userEmail = req.body.email;
   const password = req.body.password;
-  console.log('inputtedinfo', userEmail, password);
+  //console.log('inputtedinfo', userEmail, password);
+  const hashedPassword = bcrypt.hashSync(password, 10);
   if (checkUsers(userEmail) === true) {
     res.status(403).send("User not found!");
-  } if (checkUsers(userEmail) === null && checkUsersPassword(password) === true) {
+  } if (checkUsers(userEmail) === null && bcrypt.compareSync(password), hashedPassword === false) {
     res.status(403).send("Incorrect Password!");
   } else {
     let loginUserID = retrieveUserID(userEmail);
