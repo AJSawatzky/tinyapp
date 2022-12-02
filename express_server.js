@@ -56,27 +56,6 @@ const generateRandomString = () => {
   return (Math.random() + 1).toString(36).slice(2,8);
 };
 
-//checks whether an email is already contained in the Database. It returns "null" if it's in our Database, "true" if it's not there
-//const checkUsers = (loginEmail) => {
-//  let value = true;
-//  for (const user of Object.keys(users)) {
-//    if (users[user].email === loginEmail) {
-//      value = null;
-//    } 
-//  } return value;
-//};
-
-//finds the User ID, required to create a cookie on login
-//const retrieveUserID = (loginEmail) => {
-//  let userID = "";
-//  for (const user of Object.keys(users)) {
-//    if (users[user].email === loginEmail) {
-//      userID = users[user].id;
-//    } 
-//  } return userID;
-//};
-
-
 const checkUsersPassword = (loginPassword) => {
   let value = false;
   for (const user of Object.keys(users)) {
@@ -95,11 +74,6 @@ const checkDatabaseForID = (ID) => {
     } 
   } return value;
 };
-//console.log(checkDatabaseForID("b2xVn2"));
-
-// console.log(checkUsersPassword("examplePassword")); //--> checkUsersPassword function test code
-
-// console.log("checkusers", checkUsers("example@example.com")); --> checkUsers function test code
 
 app.get("/", (req, res) => {
   if (req.session.user_id === undefined) {
@@ -110,7 +84,6 @@ app.get("/", (req, res) => {
 });
 
 app.post("/urls/:id/delete", (req, res) => {
-  //console.log(req.body); // Log the POST request body to the console
   const id = req.params.id;
   const viewerID = req.session.user_id;
   if (urlDatabase[req.params.id].userID !== viewerID) {
@@ -247,7 +220,6 @@ app.get("/login", (req, res) => {
   if (req.session.user_id !== undefined) {
     res.redirect("/urls");
   }
-  // console.log(req.cookies["user_id"]) is to view the value of any user id cookies on the user's browser
   res.render("login", templateVars);
 });
 
