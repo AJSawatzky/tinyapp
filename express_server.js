@@ -12,15 +12,16 @@ app.use(cookieSession({
   keys: ['superSecretKey', 'anotherEvenMoreSecretKey'],
 }));
 
-// 
-//   
-// 
-
 app.set("view engine", "ejs");
+
 
 const urlDatabase = {
   b6UTxQ: {
     longURL: "https://www.tsn.ca",
+    userID: "user1",
+  },
+  b6UTxS: {
+    longURL: "https://facebook.com",
     userID: "user1",
   },
   i3BoGr: {
@@ -45,7 +46,7 @@ const users = {
 const urlsForUser = (id) => {
   const userURLs = {};
   const currentUser = id;
-  for (const shortID of Object.key(urlDatabase)) {
+  for (const shortID of Object.keys(urlDatabase)) {
     if (urlDatabase[shortID].userID === currentUser) {
       userURLs[shortID] = urlDatabase[shortID];
     }
