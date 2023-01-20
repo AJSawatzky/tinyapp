@@ -16,19 +16,22 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <% if (user === undefined) { %>
-          <a class="nav-item nav-link" href="/register">Register</a>
-          <a class="nav-item nav-link" href="/login">Login</a>
-        <% } %>
       </div>
     </div>
-    <% if (user !== undefined) { %>
-      <b><%="logged in as: " + user.email %></b>
-    <% } %>
-    <% if (user !== undefined) { %>
-      <form class="form-inline" action="/logout" method="POST" name="logout">
-        <button type="submit" class="btn btn-outline-light">Logout</button>
-      </form>
-    <% } %>
+    <% if(!user) {%>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNavAltMarkup">
+        <a class="btn btn-primary" style="margin: .1em" href="/login">Login</a>
+        <a class="btn btn-primary" style="margin: .5em" href="/register">Register</a>
+        </div>
+      </div>
+    <%} else {%>
+      <div class="navbar-nav">
+        <form method="POST" action="/logout" class="form-inline">
+          <div class="form-group form-inline">
+          <label>Logged in as: <%= user.email %></label>
+          <button type="submit" class="btn btn-outline-dark" style="margin: 1em">Logout</button>
+        </form>
+      </div>
+     <%} %>
   </nav>
 </header>

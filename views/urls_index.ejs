@@ -1,22 +1,27 @@
+<!-- template to display all the URLs and their shortened forms -->
+
+<!DOCTYPE html>
+
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
-
+      />
     <!-- Bootstrap CSS -->
     <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
-      integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
-      crossorigin="anonymous"
-    />
+    rel="stylesheet"
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+    integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+    crossorigin="anonymous"
+  />
     <title>TinyApp</title>
   </head>
   <body>
-    <%- include('partials/_header') %>
+    <header>
+      <%- include('./partials/_header'); %>
+    </header>
     <main style="margin: 1em;">
       <h3>My URLs</h3>
       <table class="table">
@@ -30,23 +35,19 @@
         </thead>
         <tbody>
           <% for (let id in urls) { %>
-            
             <tr>
               <td><%= id %></td>
               <td><%= urls[id].longURL %></td>
-              <td>     
-                <a href="/urls/<%= id %>">  
-                  <button type="submit" class="btn btn-success" id="editButton" >Edit</button>
-                </a>
+              <td> 
+                <a href="/urls/<%= id %>"><button type="submit">Edit</button> </a></form>
               </td>
-              <td><form method="POST" action="/urls/<%= id %>/delete">
-                <button type="submit" class="btn btn-success" id="myButton" >Delete</button>
-              </form></td>
+              <td> <form method="POST" action="/urls/<%= id %>/delete">
+                <button type="submit">Delete</button> </form>
+              </td>
             </tr>
           <% } %>
         </tbody>
       </table>
-      <a href="/urls/new" > Shorten a new URL! </a>
     </main>
     <!-- Bootstrap JS -->
     <script
